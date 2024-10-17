@@ -64,11 +64,65 @@ AND MONTHS_BETWEEN(ENTRANCE_DATE, TO_DATE(SUBSTR(STUDENT_SSN, 1, 6), 'RRMMDD'))/
 -- 6. 2020년 크리스마스는 무슨 요일인가?
 SELECT TO_CHAR(TO_DATE('20201225', 'YYYYMMDD'), 'dy') FROM DUAL;
 
--- 7. 
+-- 7. TO_DATE('99/10/11', 'YY/MM/DD'), TO_DATE('49/10/11', 'YY,MM,DD')은
+-- 각각 몇 년 몇월 몇일을 의미할까? 또 TO_DATE('99/10/11', 'RR/MM/DD'),
+-- TO_DATE('49/10/11', 'RR/MM/DD') 은 각각 몇 년 몇월 몇일을 의미할까?
+SELECT TO_CHAR(TO_DATE('99/10/11', 'YY/MM/DD'), 'YYYY/MM/DD') "첫 번째" , TO_CHAR(TO_DATE('49/10/11', 'YY/MM/DD'), 'YYYY/MM/DD') "두 번째",
+TO_CHAR(TO_DATE('99/10/11', 'RR/MM/DD'), 'YYYY/MM/DD') "세 번째", TO_CHAR(TO_DATE('49/10/11', 'RR/MM/DD'), 'YYYY/MM/DD') "네 번째"
+FROM DUAL;
 
+-- 8. 춘 기술대학의 2000년도 이후 입학자들은 학번이 A로 시작한다.
+-- 2000년도 이전 학번을 받은 학생들의 학번과 이름을 조회.
+SELECT STUDENT_NO, STUDENT_NAME
+FROM TB_STUDENT
+WHERE STUDENT_NO NOT LIKE 'A%';
 
+-- 9. 학번이 A517178 인 한아름 학생의 학점 총 평점을 구하기.
+-- 단, 이때 헤더는 "평점"으로 출력하고 점수는 반올림하여 소수점 이하 한 자리까지 표시.
+SELECT ROUND(AVG(POINT), 1) 평점
+FROM TB_STUDENT ts
+JOIN TB_GRADE tg ON (ts.STUDENT_NO = tg.STUDENT_NO)
+WHERE ts.STUDENT_NO = 'A517178';
 
+SELECT * FROM TB_GRADE
+WHERE STUDENT_NO = 'A517178';
 
+-- 10. 학과별 학생수를 구해 "학과번호", "학생수(명)" 의 형태로 헤더를 만들어 결과값 출력.
+SELECT * FROM TB_CLASS;
+SELECT * FROM TB_STUDENT;
+
+SELECT DEPARTMENT_NO "학과 번호", COUNT(*) "학생 수(명)"
+FROM TB_STUDENT
+GROUP BY DEPARTMENT_NO
+ORDER BY DEPARTMENT_NO;
+
+-- 11. 지도 교수를 배정 받지 못한 학생의 수는 몇 명인가?
+SELECT COUNT(*)
+FROM TB_STUDENT
+GROUP BY COACH_PROFESSOR_NO
+HAVING COACH_PROFESSOR_NO IS NULL;
+
+-- 12. 학번이 A112113인 김고운 학생의 년도 별 평점을 구하기
+-- 단, 출력 화면 헤더는 "년도", "년도 별 평점"으로 출력하고 점수는 반올림하고 소수점 이하 한 자리까지 표시.
+
+SELECT * FROM TB_GRADE
+WHERE STUDENT_NO = 'A112113';
+
+SELECT SUBSTR(TERM_NO, 1, 4) "년도", ROUND(AVG(POINT), 1) "년도 별 평점"
+FROM TB_STUDENT ts
+JOIN TB_GRADE tg  ON(ts.STUDENT_NO = tg.STUDENT_NO)
+WHERE ts.STUDENT_NO = 'A112113'
+GROUP BY SUBSTR(TERM_NO, 1, 4)
+--HAVING ts.STUDENT_NO = 'A112113'
+ORDER BY 1;
+
+-- 13. 학과 별 휴학생 수를 파악. 학과 번호와 휴학생 수를 표시.
+SELECT * FROM TB_STUDENT ts;
+SELECT * FROM TB_DEPARTMENT td;
+
+SELECT COUNT(*) FROM TB_STUDENT
+GROUP BY DEPARTMENT_NO
+HAVING ABSENCE_YN = 'Y';
 
 
 
